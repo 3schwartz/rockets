@@ -1,14 +1,15 @@
 package main
 
 import (
-	"main/internal"
+	"main/internal/controller"
+	"main/internal/repository"
 
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	storage := internal.NewMemoryStorage()
-	controller := internal.Controller{Storage: &storage}
+	storage := repository.NewMemoryStorage()
+	controller := controller.Controller{Storage: &storage}
 
 	router := gin.Default()
 

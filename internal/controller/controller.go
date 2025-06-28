@@ -1,15 +1,17 @@
-package internal
+package controller
 
 import (
 	"encoding/json"
 	"fmt"
+	"main/internal/model"
+	"main/internal/repository"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
 type Controller struct {
-	Storage IRepository
+	Storage repository.IRepository
 }
 
 func (controller *Controller) PostMessages(c *gin.Context) {
@@ -21,13 +23,13 @@ func (controller *Controller) PostMessages(c *gin.Context) {
 		return
 	}
 
-	message, err := envelope.intoRocketEvent()
+	message, err := envelope.IntoRocketEvent()
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	controller.Storage.save(*message)
+	controller.Storage.Save(*message)
 
 	jsonData, err := json.MarshalIndent(message, "", "  ")
 	if err != nil {
@@ -42,13 +44,13 @@ func (controller *Controller) GetMessageByChannel(c *gin.Context) {
 
 	id := c.Param("id")
 
-	events, err := controller.Storage.events(id)
+	events, err := controller.Storage.Events(id)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	rocketState, err := rehydrateRocketState(events)
+	rocketState, err := model.RehydrateRocketState(events)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -57,8 +59,8 @@ func (controller *Controller) GetMessageByChannel(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, rocketState)
 }
 
-func envelopeFromJson(c *gin.Context) (*Envelope, error) {
-	var envelope *Envelope
+func envelopeFromJson(c *gin.Context) (*model.Envelope, error) {
+	var envelope *model.Envelope
 
 	if err := c.ShouldBindJSON(&envelope); err != nil {
 		return nil, err

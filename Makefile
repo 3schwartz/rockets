@@ -3,3 +3,6 @@ messages:
 
 get:
 	curl http://localhost:8088/messages/$(id)
+
+test:
+	go test $$(go list ./...) -coverprofile cover.out

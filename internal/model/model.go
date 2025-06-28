@@ -1,4 +1,4 @@
-package internal
+package model
 
 import (
 	"encoding/json"
@@ -12,7 +12,7 @@ type Envelope struct {
 	Metadata Metadata        `json:"metadata"`
 }
 
-func (e *Envelope) intoRocketEvent() (*RocketEvent, error) {
+func (e *Envelope) IntoRocketEvent() (*RocketEvent, error) {
 	var message RocketMessage
 
 	switch e.Metadata.MessageType {
@@ -135,7 +135,7 @@ type RocketState struct {
 	Exploded bool   `json:"exploded"`
 }
 
-func rehydrateRocketState(events []RocketEvent) (*RocketState, error) {
+func RehydrateRocketState(events []RocketEvent) (*RocketState, error) {
 	rocket := &RocketState{}
 
 	if len(events) == 0 {
