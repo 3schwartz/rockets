@@ -129,10 +129,11 @@ type RocketEvent struct {
 }
 
 type RocketState struct {
-	Type     string `json:"type"`
-	Speed    int    `json:"speed"`
-	Mission  string `json:"mission"`
-	Exploded bool   `json:"exploded"`
+	Type           string `json:"type"`
+	Speed          int    `json:"speed"`
+	Mission        string `json:"mission"`
+	Exploded       bool   `json:"exploded"`
+	ExplodedReason string `json:"explodedReason"`
 }
 
 func RehydrateRocketState(events []RocketEvent) (*RocketState, error) {
@@ -165,6 +166,7 @@ func RehydrateRocketState(events []RocketEvent) (*RocketState, error) {
 			rocket.Mission = e.NewMission
 		case RocketExploded:
 			rocket.Exploded = true
+			rocket.ExplodedReason = e.Reason
 		default:
 			return nil, fmt.Errorf("unknown state: %s", e.eventName())
 		}

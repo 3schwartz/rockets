@@ -48,3 +48,40 @@ func TestGivenEventsThenConstructState(t *testing.T) {
 		t.Error(diff)
 	}
 }
+
+func TestGivenExplodedThenExploded(t *testing.T) {
+	// Arrange
+	channel := "a"
+	events := []RocketEvent{
+		{
+			Channel:       channel,
+			MessageNumber: 1,
+			MessageTime:   time.Now(),
+			Message:       RocketLaunched{Type: "hello", LaunchSpeed: 10, Mission: "world"},
+		},
+		{
+			Channel:       channel,
+			MessageNumber: 3,
+			MessageTime:   time.Now(),
+			Message:       RocketExploded{Reason: "some reason"},
+		},
+	}
+
+	// Act
+	rocketState, err := RehydrateRocketState(events)
+
+	// Assert
+	expected := RocketState{
+		Type:           "hello",
+		Speed:          10,
+		Mission:        "world",
+		Exploded:       true,
+		ExplodedReason: "some reason",
+	}
+	if err != nil {
+		t.Error(err)
+	}
+	if diff := cmp.Diff(&expected, rocketState); diff != "" {
+		t.Error(diff)
+	}
+}
