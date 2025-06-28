@@ -85,3 +85,36 @@ func TestGivenExplodedThenExploded(t *testing.T) {
 		t.Error(diff)
 	}
 }
+
+func TestGivenEmptyListThenError(t *testing.T) {
+	// Arrange
+	events := []RocketEvent{}
+
+	// Act
+	_, err := RehydrateRocketState(events)
+
+	// Assert
+	if err == nil {
+		t.Error("expected error")
+	}
+}
+
+func TestGivenNoLaunchedEventThenError(t *testing.T) {
+	// Arrange
+	events := []RocketEvent{
+		{
+			Channel:       "",
+			MessageNumber: 3,
+			MessageTime:   time.Now(),
+			Message:       RocketExploded{Reason: "some reason"},
+		},
+	}
+
+	// Act
+	_, err := RehydrateRocketState(events)
+
+	// Assert
+	if err == nil {
+		t.Error("expected error")
+	}
+}

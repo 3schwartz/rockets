@@ -14,7 +14,8 @@ func main() {
 	router := gin.Default()
 
 	router.POST("/messages", controller.PostMessages)
-	router.GET("/messages/:id", controller.GetMessageByChannel)
+	router.GET("/rocket/:id", controller.GetRocketByChannel)
+	router.GET("/rockets", controller.GetRockets)
 
 	router.Run("localhost:8088")
 }
