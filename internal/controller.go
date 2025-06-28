@@ -9,19 +9,19 @@ import (
 )
 
 type Controller struct {
-	Storage Storage
+	Storage IRepository
 }
 
 func (controller *Controller) PostMessages(c *gin.Context) {
 	fmt.Println("postMessages")
 
-	envelope, err := EnvelopeFromJson(c)
+	envelope, err := envelopeFromJson(c)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	message, err := envelope.IntoRocketEvent()
+	message, err := envelope.intoRocketEvent()
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -55,4 +55,14 @@ func (controller *Controller) GetMessageByChannel(c *gin.Context) {
 	}
 
 	c.IndentedJSON(http.StatusOK, rocketState)
+}
+
+func envelopeFromJson(c *gin.Context) (*Envelope, error) {
+	var envelope *Envelope
+
+	if err := c.ShouldBindJSON(&envelope); err != nil {
+		return nil, err
+	}
+
+	return envelope, nil
 }

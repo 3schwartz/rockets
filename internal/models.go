@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"sort"
 	"time"
-
-	"github.com/gin-gonic/gin"
 )
 
 type Envelope struct {
@@ -14,17 +12,7 @@ type Envelope struct {
 	Metadata Metadata        `json:"metadata"`
 }
 
-func EnvelopeFromJson(c *gin.Context) (*Envelope, error) {
-	var envelope *Envelope
-
-	if err := c.ShouldBindJSON(&envelope); err != nil {
-		return nil, err
-	}
-
-	return envelope, nil
-}
-
-func (e *Envelope) IntoRocketEvent() (*RocketEvent, error) {
+func (e *Envelope) intoRocketEvent() (*RocketEvent, error) {
 	var message RocketMessage
 
 	switch e.Metadata.MessageType {
