@@ -25,5 +25,5 @@ jobs:
           check-latest: true
 
       - name: Run tests
-        working-directory: ./operator
+        working-directory: ./
         run: make test
