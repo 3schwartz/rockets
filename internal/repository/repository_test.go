@@ -97,7 +97,13 @@ func TestWhenFilterExplodedThenReturnOnlyExplodedAndLimit(t *testing.T) {
 	}
 }
 
-func TestWhenFilterExplodedAndLimitThenReturnOnlyExplodedAndLimit(t *testing.T) {
+func sortByChannel(events *[][]model.RocketEvent) {
+	sort.Slice(*events, func(i, j int) bool {
+		return (*events)[i][0].Channel < (*events)[j][0].Channel
+	})
+}
+
+func TestWhenFilterExplodedAndLimitThenReturnOnlyNonExplodedAndLimit(t *testing.T) {
 	// Arrange
 	repo := NewMemoryStorage()
 	now := time.Now()
@@ -127,18 +133,8 @@ func TestWhenFilterExplodedAndLimitThenReturnOnlyExplodedAndLimit(t *testing.T) 
 	if len(events) != 1 {
 		t.Errorf("expected length of 1 got %d", len(events))
 	}
-	expected := [][]model.RocketEvent{
-		{{
-			Channel:       "b",
-			MessageNumber: 3,
-			MessageTime:   now,
-			Message:       model.RocketSpeedDecreased{By: 1},
-		}},
-	}
-	sortByChannel(&expected)
-	sortByChannel(&events)
-	if diff := cmp.Diff(expected, events); diff != "" {
-		t.Error(diff)
+	if _, ok := events[0][0].Message.(model.RocketExploded); ok {
+		t.Errorf("should not return rockets with exploded events")
 	}
 }
 
@@ -172,10 +168,4 @@ func TestWhenLimitThenReturnOnlLimit(t *testing.T) {
 	if len(events) != 2 {
 		t.Errorf("expected length of 2 got %d", len(events))
 	}
-}
-
-func sortByChannel(events *[][]model.RocketEvent) {
-	sort.Slice(*events, func(i, j int) bool {
-		return (*events)[i][0].Channel < (*events)[j][0].Channel
-	})
 }

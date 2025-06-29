@@ -118,3 +118,46 @@ func TestGivenNoLaunchedEventThenError(t *testing.T) {
 		t.Error("expected error")
 	}
 }
+
+func TestGivenOutOfOrderMessagesThenRehydrateCorrect(t *testing.T) {
+	// Arrange
+	channel := "a"
+	events := []RocketEvent{
+		{
+			Channel:       channel,
+			MessageNumber: 3,
+			MessageTime:   time.Now(),
+			Message:       RocketMissionChanged{NewMission: "c"},
+		},
+		{
+			Channel:       channel,
+			MessageNumber: 1,
+			MessageTime:   time.Now(),
+			Message:       RocketLaunched{Type: "hello", LaunchSpeed: 10, Mission: "a"},
+		},
+		{
+			Channel:       channel,
+			MessageNumber: 2,
+			MessageTime:   time.Now(),
+			Message:       RocketMissionChanged{NewMission: "b"},
+		},
+	}
+
+	// Act
+	rocketState, err := RehydrateRocketState(events)
+
+	// Assert
+	expected := RocketState{
+		Type:           "hello",
+		Speed:          10,
+		Mission:        "c",
+		Exploded:       false,
+		ExplodedReason: "",
+	}
+	if err != nil {
+		t.Error(err)
+	}
+	if diff := cmp.Diff(&expected, rocketState); diff != "" {
+		t.Error(diff)
+	}
+}
